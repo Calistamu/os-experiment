@@ -44,7 +44,7 @@ void Reader_Writer(char* file) {
 	HANDLE h_thread[MAX_THREAD_NUM];
 	ThreadInfo thread_info[MAX_THREAD_NUM];
 
-	fstream InFile;
+	ifstream InFile;
 	InFile.open(file);
 	puts("Read Data File\n");
 
@@ -80,7 +80,7 @@ void Reader_Writer(char* file) {
 
 // 读者优先、可以连续读
 void Thread_Reader(void* p) {
-	int r_serial, r_delay, r_persist;
+	int r_serial,r_delay,r_persist;
 
 	r_serial = ((ThreadInfo*)(p))->serial;
 	r_delay = ((ThreadInfo*)(p))->delay;
@@ -90,15 +90,17 @@ void Thread_Reader(void* p) {
 		Sleep(r_delay);
 		printf("R thread %d send a require\n", r_serial);
 		EnterCriticalSection(&mutex);
-		read_count++;
-		if (read_count == 1)EnterCriticalSection(&w);
+		read_count++;//读者读进程标志
+		if (read_count == 1)
+			EnterCriticalSection(&w);
 		LeaveCriticalSection(&mutex);
 		printf("R thread %d begin to read\n", r_serial);
 		Sleep(r_persist);
 		printf("R thread %d finish!\n", r_serial);
 		EnterCriticalSection(&mutex);
 		read_count--;
-		if (read_count == 0)LeaveCriticalSection(&w);
+		if (read_count == 0)
+			LeaveCriticalSection(&w);
 		LeaveCriticalSection(&mutex);
 	}
 
